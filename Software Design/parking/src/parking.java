@@ -18,6 +18,22 @@ public class parking {
         return lot;
     }
 
+    //returns the index of the closest parking space in the parkingSpaces array
+    int findNearestSpace(String []lot)
+    {
+        int spaceIndex = -1;
+        for(int i = 0; i < capacity; i++)
+        {
+            if(lot[i].equals("x"))
+            {
+                spaceIndex = i;
+                break;
+            }
+        }
+        return spaceIndex;
+    }
+
+    //returns # of spaces filled w/ parked cars
     int findParkedNum(String []lot)
     {
         int parkedNum = 0;
