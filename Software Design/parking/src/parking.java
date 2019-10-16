@@ -22,14 +22,19 @@ public class parking {
     int findNearestSpace(String []lot)
     {
         int spaceIndex = -1;
-        for(int i = 0; i < capacity; i++)
+        //check that we have any spaces open before going to the trouble of running this loop
+        if(!isAtCapacity())//if we're not at capacity, run the loop
         {
-            if(lot[i].equals("x"))
+            for(int i = 0; i < capacity; i++)
             {
-                spaceIndex = i;
-                break;
+                if(lot[i].equals("x"))
+                {
+                    spaceIndex = i;
+                    break;
+                }
             }
         }
+        //if we are at capacity, spaceIndex will remain -1 and be returned as such
         return spaceIndex;
     }
 
