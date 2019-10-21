@@ -1,0 +1,5 @@
+D,Exiting,0814,2120,true
+F,Entering,0633,0217,false
+G,Entering,0135,0714,false
+G,Exiting,0135,0714,true
+F,Exiting,0633,0217,true
