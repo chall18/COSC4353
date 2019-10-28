@@ -1,5 +1,0 @@
-D,Exiting,0814,2120,true,1,true,we
-F,Entering,0633,0217,false,2,true,wd
-G,Entering,0135,0714,false,5,true,wd
-G,Exiting,0135,0714,true,5,true,wd
-F,Exiting,0633,0217,true,2,true,wd
