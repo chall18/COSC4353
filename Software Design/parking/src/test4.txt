@@ -1,4 +1,0 @@
-10
-A,Exiting,0800,1700,true
-D,Exiting,0814,2120,true
-B,Exiting,0743,0259,false
