@@ -1,4 +1,0 @@
-2
-A,Exiting,0800,1700,true,8,true,we
-D,Exiting,0814,2120,true,2,false,wd
-B,Exiting,0743,0259,false,4,false,wd
