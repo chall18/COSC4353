@@ -1,0 +1,4 @@
+1
+A,Entering,0800,1700,false,2,true,we
+C,Entering,0725,0355,false,12,false,wd
+E,Entering,1024,0037,false,7,true,we

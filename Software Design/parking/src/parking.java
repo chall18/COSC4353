@@ -1,9 +1,5 @@
 //class parking will read and change data of Car objects while monitoring its capacity
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.Queue;
 
@@ -12,9 +8,15 @@ public class parking extends Car {
     private int spacesFilled;//how many cars we currently have
     private Car []parkingLot;
     private int revenue;
+    String rules;
+    boolean lotType;
+    String lotName;
 
     //setting rules for money owed per hours spent in garage
-    int price(Car a){
+    double price(Car a){
+        ParkingPolice p = new ParkingPolice();
+        int prices[] = p.rulesForCalculation(a.dayType);
+
         double timeSpent = 0;
         if(a.timeExited < a.timeEntered){
             //if Car spent more than 12 hours parked
@@ -24,54 +26,50 @@ public class parking extends Car {
             timeSpent = a.timeExited - a.timeEntered;
         }
 
-        int moneyOwed = 0;
+        double moneyOwed = 0;
         double hours = timeSpent/100;
-        if(hours < 0.5){
-            moneyOwed = 0;
+
+        if(a.dayType.equals("wd")){//if trying to park on a weekday
+            if(hours < prices[0]){
+                moneyOwed = p.calculatePriceForRevenue(0, prices[0], lotType, a.distanceFromVenue);
+            }
+            else if(hours >= prices[0] && hours <= prices[1]){
+                moneyOwed = p.calculatePriceForRevenue(prices[0], prices[1], lotType, a.distanceFromVenue);
+            }
+            else if(hours > prices[1] && hours <= prices[2]){
+                moneyOwed = p.calculatePriceForRevenue(prices[1], prices[2], lotType, a.distanceFromVenue);
+            }
+            else if(hours > prices[2] && hours <= prices[3]){
+                moneyOwed = p.calculatePriceForRevenue(prices[2], prices[3], lotType, a.distanceFromVenue);
+            }
+            else if(hours > prices[3] && hours <= prices[4])
+            {
+                moneyOwed = p.calculatePriceForRevenue(prices[3], prices[4], lotType, a.distanceFromVenue);
+            }
+            else if(hours > prices[4] && hours <= prices[5]){
+                moneyOwed = p.calculatePriceForRevenue(prices[4], prices[5], lotType, a.distanceFromVenue);
+            }
         }
-        else if(hours >= .5 && hours <= 1){
-            moneyOwed = 2;
-        }
-        else if(hours > 1 && hours <= 2){
-            moneyOwed = 4;
-        }
-        else if(hours > 2 && hours <= 3){
-            moneyOwed = 8;
-        }
-        else if(hours > 3 && hours <= 4)
-        {
-            moneyOwed = 10;
-        }
-        else if(hours > 4 && hours <= 5){
-            moneyOwed = 12;
-        }
-        else if(hours > 5 && hours <= 24){
-            moneyOwed = 14;
-        }
-        else if(hours < 24){
-            moneyOwed = 20;
+        else{//on a weekend
+            if(hours < prices[0]){
+                moneyOwed = p.calculatePriceForRevenue(0, prices[0], lotType, a.distanceFromVenue);
+            }
+            else if(hours > prices[0] && hours <= prices[1]){
+                moneyOwed = p.calculatePriceForRevenue(prices[0], prices[1], lotType, a.distanceFromVenue);
+            }
+            else if(hours > prices[1] && hours < prices[2])
+            {
+                moneyOwed = p.calculatePriceForRevenue(prices[1], prices[2], lotType, a.distanceFromVenue);
+            }
+
         }
         System.out.println("Car " + a.name + " spent " + hours + " hours parked and will be charged $" + moneyOwed + ".");
         return moneyOwed;
     }
 
     //Car objects will wait in these queues to be dealt with once they're read in
-    private Queue<Car> entranceLine = new LinkedList<>();
-    private Queue<Car> exitLine = new LinkedList<>();
-
-//    public void setCapacity(int n){
-//        this.capacity = n;
-//    }
-//    public int getCapacity(){
-//        return this.capacity;
-//    }
-//
-//    public void setParkingLot(Car []lot){
-//        this.parkingLot = lot;
-//    }
-//    public Car [] getParkingLot(){
-//        return this.parkingLot;
-//    }
+    public Queue<Car> entranceLine = new LinkedList<>();
+    public Queue<Car> exitLine = new LinkedList<>();
 
     //returns the index of the closest parking space in the parkingLot array
     int findNearestSpace()
@@ -177,64 +175,6 @@ public class parking extends Car {
             parkingLot[i] = tempCar;
         }
     }
-    void readParkingData(String file)
-    {
-        //read input file line by line, each Car attribute delimited by a comma
-        Path myPath = Paths.get(file);
-        try
-        {
-            BufferedReader reader = new BufferedReader(new FileReader(file));
-            String line = reader.readLine();
-            int newCap = Integer.valueOf(line);
-            capacity = newCap;
-            lotSetUp(capacity);
-            //System.out.println("Capacity for this lot: " + newCap);
-            while((line = reader.readLine()) != null)
-            {
-                //System.out.println("Line: " + line);
-                String []arr = line.split(",");
-                Car newCar = new Car();//use the data to fill in the info for a new Car
-                newCar.name = arr[0];
-                newCar.status = arr[1];
-                newCar.timeEntered = Double.parseDouble(arr[2]);
-                newCar.timeExited = Double.parseDouble(arr[3]);
-                newCar.iHaveTicket = Boolean.parseBoolean(arr[4]);
-
-                switch(arr[1])
-                {
-                    case "Entering":
-                    {
-                        System.out.println("Car " + newCar.name + " is entering and will park shortly.");
-                        entranceLine.add(newCar);
-                        break;
-                    }
-                    case "Exiting":
-                    {
-                        if(isCarParked(newCar) != -1){
-                            //if this is a repeat of the same car (w/ a status change) in the data to show the full cycle of entering, parking, and leaving
-
-                            //first, find that car in the lot and switch them from parked to leaving
-                            carIsLeaving(newCar, isCarParked(newCar));
-                            checkForTicket(newCar);
-
-                        }
-                        else{
-                            exitLine.add(newCar);
-                            parkingProcedure(newCar);
-                        }
-                        break;
-
-                    }
-                }
-            }
-            reader.close();
-        }
-        catch(Exception e)
-        {
-            System.out.println("Unable to find/read given file.");
-            e.printStackTrace();
-        }
-    }
 
     int getRevenue(){
         return this.revenue;
@@ -313,37 +253,15 @@ public class parking extends Car {
                 carIsLeaving(exitFirst, space);
                 checkForTicket(exitFirst);
             }
-
-
         }
-
     }
 
-    public static void main(String [] args) {
 
-        parking park = new parking();
-        String input = "test4.txt";//file that will be included
-        park.readParkingData(input);//read the file, put everybody in their respective queues
-        park.beginTheDay(park.entranceLine,park.exitLine);
-        System.out.println("Revenue earned: " + park.getRevenue());
-
-        //if something is read in as exiting, mark them initially as parked.
-
-
-        //Once everything is read in, then the "day" of parking begins
-            //start unloading the queues
-                //Rather than unloading each queue all at once, we should check according to time
-                //If car A is entering at noon, but car B is exiting at 11:30, then we should deal with head of exit Q first
-
-
-        //Certain things should go hand-in-hand. If a car's status is "Entering", they shouldn't have a ticket.
-            //Once they're given a ticket, change their status to parked. (They park super fast!)
-            //If a car approaches the exit gate, they should have a ticket. At that point, take away their ticket and make that false.
-
-        //If status parked, add 1 to spacesFilled.
-            //Once car has approached exit gate and had their ticket taken, subtract 1 from spacesFilled.
-
-
-
+    public void setCapacity(int newCap){
+        this.capacity = newCap;
     }
+    public int getCapacity(){
+        return capacity;
+    }
+
 }
