@@ -1,3 +1,0 @@
-5
-A,Entering,1752,1645,false
-A,Exiting,1752,1645,false
