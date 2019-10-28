@@ -1,4 +1,0 @@
-20
-A,Entering,0800,1700,false
-C,Entering,0725,0355,false
-E,Entering,1024,0037,false
